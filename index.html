@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý học sinh</title>
+    <link rel="stylesheet" href="css/bootstrap.css">
+</head>
+<body>
+    <div class="container" >
+        <div class="row mt-5" >
+            <div class="card col-lg-12" >
+                <div class="card-body" >
+                    <div class="row" >
+                        <div class="col-12 text-center" ><h2>QUẢN LÝ HỌC SINH</h2></div>
+                    </div>
+                    <br>
+                    <br>
+                    <div class="row" >
+                        <div class="col-12" >
+                            <form>
+                                <div class="row" >
+                                    <div class="form-group col-6" >
+                                        <label class="form-label" for="txtHoVaTen" >Họ và tên</label>
+                                        <input type="text" id="txtHoVaTen" class="form-control" placeholder=" Nhập Họ và tên"/>
+                                    </div>
+                                    <div class="form-group col-6" >
+                                        <label class="form-label" for="txtNgaySinh" >Ngày sinh</label>
+                                        <input type="text" id="txtNgaySinh" class="form-control" placeholder="Nhập ngày sinh" />
+                                    </div>
+                                </div>
+                                <div class="row" >
+                                    <div class="form-group col-6" >
+                                        <label class="form-label" for="txtDiaChi" >Địa chỉ</label>
+                                        <input type="text" id="txtDiaChi" class="form-control" placeholder="Nhập địa chỉ"/>
+                                    </div>
+                                    <div class="form-group col-6" >
+                                        <label class="form-label" for="cboGioiTinh" >Giới tính</label>
+                                        <select class="form-select" id="cboGioiTinh" aria-label="Default select example">
+                                            <option value="Nam">Nam</option>
+                                            <option value="Nữ">Nữ</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="row" >
+                                    <div class="form-group col-12" >
+                                        <label class="form-label" for="cboLop" >Lớp</label>
+                                        <select class="form-select" id="cboLop" aria-label="Default select example">
+                                            <option value="Java">Java</option>
+                                            <option value="Php">Php</option>
+                                            <option value="Python">Python</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="row" >
+                        <div class="col-12 mt-3" >
+                            <button class="btn btn-primary" onclick="submit()" >Lưu</button>
+                            <button class="btn btn-danger" onclick="resetForm()" >Huỷ</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-5" >
+            <div class="card col-12" >
+                <div class="card-body" >
+                    <table class="table" >
+                        <thead>
+                            <tr>
+                                <th>Họ và tên</th>
+                                <th>Ngày Sinh</th>
+                                <th>Địa chỉ</th>
+                                <th>Giới tính</th>
+                                <th>Lớp</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tblData" ></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    let isEdited = false;
+    let editedId = 0;
+    let counter = 0;
+
+    //Hàm dùng để thêm mới và sửa thông tin học sinh
+    function submit() {
+        if (isEdited) {
+            //Xử lý khi người dùng sửa thông tin học sinh và bấm "Lưu" (isEdited = true)
+            /*
+            Lấy thông tin từ form và sửa giá trị trong hàng được chọn (là giá trị của editedId)
+             */
+            document.getElementById("hovaten_" + editedId).innerText = document.getElementById("txtHoVaTen").value;
+            document.getElementById("ngaysinh_" + editedId).innerText = document.getElementById("txtNgaySinh").value;
+            document.getElementById("diachi_" + editedId).innerText = document.getElementById("txtDiaChi").value;
+            document.getElementById("gioitinh_" + editedId).innerText = document.getElementById("cboGioiTinh").value;
+            document.getElementById("lop_" + editedId).innerText = document.getElementById("cboLop").value;
+            /*
+            Kết thúc lấy thông tin từ form và sửa giá trị trong hàng được chọn
+             */
+            alert('Sửa thông tin học sinh thành công');
+            //Đưa giá trị form về mặc định
+            resetForm();
+        } else {
+            //Xử lý khi người dùng thêm mới học sinh và bấm nút "Lưu" (isEdited = false)
+            //checkLimit() => Kiểm tra thông tin xem đã quá số học sinh trong 1 lớp hay chưa, nếu chưa thì tiếp tục xử lý
+            if (checkLimit()) {
+                //Lấy thông tin người dùng nhập vào từ form và gán vào các biến
+                let hoVaTen = document.getElementById("txtHoVaTen").value;
+                let ngaySinh = document.getElementById("txtNgaySinh").value;
+                let diaChi = document.getElementById("txtDiaChi").value;
+                let gioiTinh = document.getElementById("cboGioiTinh").value;
+                let lop = document.getElementById("cboLop").value;
+                //Tăng số hàng lên 1
+                counter = counter + 1;
+                //Tạo một chuỗi thông tin tương tự bao gổm thẻ <tr> và các thẻ <td> chứa thông tin của học sinh
+                let student =
+                    //Tạo thẻ <tr> tương ứng với 1 dòng
+                    "<tr id='record_"+ counter +"' class='"+ lop +"' > " +
+                    //Tạo thẻ <td> để lưu thông tin họ tên và gán cho thẻ <td> 1 id duy nhất là hovaten_ + số hàng
+                    "<td id='hovaten_"+counter+"' >"+ hoVaTen +"</td>" +
+                    //Tạo thẻ <td> để lưu thông tin ngày sinh và gán cho thẻ <td> 1 id duy nhất là ngaysinh_ + số hàng
+                    "<td id='ngaysinh_"+counter+"' >"+ ngaySinh +"</td>" +
+                    //Tạo thẻ <td> để lưu thông tin địa chỉ và gán cho thẻ <td> 1 id duy nhất là diachi_ + số hàng
+                    "<td id='diachi_"+counter+"' >"+ diaChi +"</td>" +
+                    //Tạo thẻ <td> để lưu thông tin giới tính và gán cho thẻ <td> 1 id duy nhất là gioitinh_ + số hàng
+                    "<td id='gioitinh_"+counter+"' >"+ gioiTinh +"</td>" +
+                    //Tạo thẻ <td> để lưu thông tin lớp và gán cho thẻ <td> 1 id duy nhất là lop_ + số hàng
+                    "<td id='lop_"+counter+"' >"+ lop +"</td>" +
+                    "<td>" +
+                    //Tạo nút sửa, khi click sẽ gọi hàm edit và có tham số là số hàng của học sinh trong bảng
+                    "<button class='btn btn-sm btn-primary me-2' onclick='edit("+ counter +")' >Sửa</button>" +
+                    //Tạo nút sửa, khi click sẽ gọi hàm remove và có tham số là số hàng của học sinh trong bảng
+                    "<button class='btn btn-sm btn-danger' onclick='remove("+ counter +")' >Xoá</button>" +
+                    "</td>" +
+                    " </tr>";
+                //Lấy tất cả các hàng hiện có của bảng dữ liệu
+                let currentStudent = document.getElementById("tblData").innerHTML;
+                //Thêm 1 hàng vào sau cùng của bảng tương ứng với dữ liệu đã khởi tạo ở trên
+                currentStudent = currentStudent + student;
+                //Sau khi thêm 1 hàng => gán lại giá trị đã thêm vào bảng
+                document.getElementById("tblData").innerHTML = currentStudent;
+                alert('Thêm mới học sinh thành công');
+                //Đưa giá trị form về mặc định
+                resetForm();
+            }
+        }
+    }
+
+    //Hàm dùng để kiểm tra số học sinh trong 1 lớp đã quá số lượng quy định hay chưa
+    function checkLimit() {
+        //Lấy thông tin lớp khi người dùng nhập
+        let lop = document.getElementById("cboLop").value;
+        let checkThanhVien = document.getElementsByClassName(lop);
+
+        if (checkThanhVien.length >= 5) {
+            alert("Lớp đã đủ số lượng thành viên, vui lòng chọn lớp khác")
+            return false;
+        } else {
+            //Ngược lại nếu < 5 thì vẫn tiếp tục cho thêm vào
+            return true;
+        }
+    }
+
+    //Hàm dùng để xoá học sinh, tham số đầu vào (id) tương ứng với số hàng của học sinh đó
+    function remove(id) {
+        let answer = confirm('Bạn có chắc chắc muốn xoá?');
+        if (answer) {
+            //Xoá bỏ hàng có id là record_ + số hàng của học sinh trong bảng
+            document.getElementById('record_'+id).remove();
+        } else {
+            alert("Bạn đã huỷ thao tác xoá!");
+        }
+    }
+
+    function edit(index) {
+       //Gán thông tin vào form
+        document.getElementById("txtHoVaTen").value = document.getElementById("hovaten_" + index).innerText;
+        document.getElementById("txtNgaySinh").value = document.getElementById("ngaysinh_" + index).innerText;
+        document.getElementById("txtDiaChi").value = document.getElementById("diachi_" + index).innerText;
+        document.getElementById("cboGioiTinh").value = document.getElementById("gioitinh_" + index).innerText;
+        document.getElementById("cboLop").value = document.getElementById("lop_" + index).innerText;
+        editedId = index;
+        isEdited = true;
+    }
+
+    //Hàm dùng để xoá giá trị trong form, đưa về mặc định
+    function resetForm() {
+        document.getElementById("txtHoVaTen").value = '';
+        document.getElementById("txtNgaySinh").value = '';
+        document.getElementById("txtDiaChi").value = '';
+        document.getElementById("cboGioiTinh").value = 'Nam';
+        document.getElementById("cboLop").value = 'Java';
+        isEdited = false;
+        editedId = 0;
+    }
+</script>
+</html>
